@@ -71,6 +71,8 @@ public class FingerprinterTask : IScheduledTask
     {
         _logger = logger;
         _fingerprintCache = new Dictionary<Guid, ReadOnlyCollection<uint>>();
+
+        EdlManager.Initialize(_logger);
     }
 
     /// <summary>
@@ -118,10 +120,11 @@ public class FingerprinterTask : IScheduledTask
         Parallel.ForEach(queue, options, (season) =>
         {
             var first = season.Value[0];
+            var writeEdl = false;
 
             try
             {
-                AnalyzeSeason(season, cancellationToken);
+                writeEdl = AnalyzeSeason(season, cancellationToken);
             }
             catch (FingerprintException ex)
             {
@@ -149,6 +152,11 @@ public class FingerprinterTask : IScheduledTask
                 }
             }
 
+            if (writeEdl && Plugin.Instance!.Configuration.EdlAction != EdlAction.None)
+            {
+                EdlManager.UpdateEDLFiles(season.Value.AsReadOnly());
+            }
+
             totalProcessed += season.Value.Count;
             progress.Report((totalProcessed * 100) / Plugin.Instance!.TotalQueued);
         });
@@ -156,13 +164,13 @@ public class FingerprinterTask : IScheduledTask
         return Task.CompletedTask;
     }
 
-    private void AnalyzeSeason(
+    private bool AnalyzeSeason(
         KeyValuePair<Guid, List<QueuedEpisode>> season,
         CancellationToken cancellationToken)
     {
         var seasonIntros = new Dictionary<Guid, Intro>();
-
         var first = season.Value[0];
+        var changesMade = false;
 
         /* Don't analyze specials or seasons with an insufficient number of episodes.
          * A season with only 1 episode can't be analyzed as it would compare the episode to itself,
@@ -170,7 +178,7 @@ public class FingerprinterTask : IScheduledTask
          */
         if (season.Value.Count < 2 || first.SeasonNumber == 0)
         {
-            return;
+            return false;
         }
 
         _logger.LogInformation(
@@ -237,6 +245,7 @@ public class FingerprinterTask : IScheduledTask
                 }
 
                 everFoundIntro = true;
+                changesMade = true;
             }
             catch (FingerprintException ex)
             {
@@ -264,6 +273,8 @@ public class FingerprinterTask : IScheduledTask
         {
             Plugin.Instance!.SaveTimestamps();
         }
+
+        return changesMade;
     }
 
     /// <summary>

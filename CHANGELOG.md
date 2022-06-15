@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.1.6.0 (unreleased)
+* Write EDL files with intro timestamps
+
 ## v0.1.5.0 (unreleased)
 * Use `ffmpeg` to generate audio fingerprints instead of `fpcalc`
   * Requires that the installed version of `ffmpeg`:
