@@ -115,6 +115,9 @@ public class FingerprinterTask : IScheduledTask
             MaxDegreeOfParallelism = Plugin.Instance!.Configuration.MaxParallelism
         };
 
+        _logger.LogWarning("Overriding user specified parallelism to 1");
+        options.MaxDegreeOfParallelism = 1;
+
         Parallel.ForEach(queue, options, (season) =>
         {
             var first = season.Value[0];

@@ -120,7 +120,7 @@ public static class Chromaprint
 
         // Prepend some flags to prevent FFmpeg from logging it's banner and progress information
         // for each file that is fingerprinted.
-        var info = new ProcessStartInfo(ffmpegPath, args.Insert(0, "-hide_banner -loglevel warning "))
+        var info = new ProcessStartInfo(ffmpegPath, args.Insert(0, "-hide_banner -loglevel info "))
         {
             WindowStyle = ProcessWindowStyle.Hidden,
             CreateNoWindow = true,
