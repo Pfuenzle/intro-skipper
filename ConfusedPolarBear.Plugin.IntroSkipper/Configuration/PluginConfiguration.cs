@@ -38,4 +38,10 @@ public class PluginConfiguration : BasePluginConfiguration
     /// Gets or sets the seconds after the intro starts to hide the skip prompt at.
     /// </summary>
     public int HidePromptAdjustment { get; set; } = 10;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether episodes should be scanned on library scan.
+    /// </summary>
+    public bool AnalyzeOnLibraryScan { get; set; }
+
 }
